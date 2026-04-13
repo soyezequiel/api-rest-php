@@ -38,10 +38,10 @@ class User
         $stmt = $db->prepare("UPDATE users SET token = :token, token_expired_at = :exp, created_at = :gen WHERE id = :id");
 
         $stmt->execute([
-            'token' => $token,    // Coincide con :token
-            'exp'   => $expiration, // Coincide con :exp
-            'gen'   => $creation,   // Coincide con :gen
-            'id'    => $userId      // Coincide con :id
+            'token' => $token,   
+            'exp'   => $expiration, 
+            'gen'   => $creation,   
+            'id'    => $userId  
         ]);
     }
 

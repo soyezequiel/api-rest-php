@@ -8,7 +8,7 @@ use Slim\Exception\HttpNotFoundException;
 use App\Middleware\AuthMiddleware;
 use App\Controllers\UserController;
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php'; //Carga automáticamente todas las librerías externas (Slim, JWT, Dotenv) instaladas vía Composer
 
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
@@ -54,6 +54,7 @@ $app->add(function ($request, $handler) {
 });
 
 // ACÁ VAN LOS ENDPOINTS
+// Endpoint de prueba para verificar que el entorno se carga correctamente
 $app->get('/test-env', function (Request $request, Response $response) {
     $data = [
         'status' => 'success',
@@ -64,7 +65,7 @@ $app->get('/test-env', function (Request $request, Response $response) {
     return $response;
 });
 
-
+// Rutas de autenticación
 $app->post('/users', [UserController::class, 'registrar']);
 $app->post('/login', [UserController::class, 'login']);
 
@@ -96,6 +97,8 @@ $app->group('/api', function ($group) {
 
     //Acá agregamos rutas protegidas, por ejemplo:
     // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
+
+    // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);
 
 })->add(new AuthMiddleware());
