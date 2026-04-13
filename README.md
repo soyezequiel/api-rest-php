@@ -14,6 +14,7 @@
    `docker run --rm -v $(pwd):/app composer install`
 5. Importar base de datos:
    Importar `db/schema.sql` en phpMyAdmin (`localhost:8080`).
+   *(Ver [Guía Detallada de Configuración de DB](docs/configuracion-db.md) si tienes problemas).*
 
 ## Comandos Útiles
 * **Bajar servicios:** `docker compose down -v`

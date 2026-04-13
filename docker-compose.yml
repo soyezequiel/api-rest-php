@@ -42,6 +42,7 @@ services:
         image: ${COMPOSE_PROJECT_NAME}_slim
         volumes:
             - ./slim:/var/www/html
+            - ./.env:/var/www/html/.env 
         networks:
             - app
         ports:
