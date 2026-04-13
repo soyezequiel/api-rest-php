@@ -7,7 +7,7 @@
 1. Crear archivo `.env` a partir de la plantilla:
    `cp .env.dist .env` (y configurar las claves reales).
 2. Crear volumen para la base de datos:
-   `docker volume create seminariophp`
+   `sudo docker volume create seminariophp`
 3. Iniciar servicios:
    `docker-compose up -d`
 4. Instalar dependencias (desde la carpeta /slim):
