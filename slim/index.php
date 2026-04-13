@@ -65,7 +65,7 @@ $app->get('/test-env', function (Request $request, Response $response) {
 });
 
 
-$app->post('/register', [UserController::class, 'registrar']);
+$app->post('/users', [UserController::class, 'registrar']);
 $app->post('/login', [UserController::class, 'login']);
 
 // Manejador para rutas no encontradas
@@ -95,7 +95,8 @@ $app->group('/api', function ($group) {
     });
 
     //Acá agregamos rutas protegidas, por ejemplo:
-    // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']); 
+    // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
+    $group->post('/logout', [UserController::class, 'logout']);
 
 })->add(new AuthMiddleware());
 

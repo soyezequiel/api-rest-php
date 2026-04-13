@@ -89,6 +89,18 @@ class UserController
         return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
     }
 
+    public function logout(Request $request, Response $response)
+    {
+        $userId = $request->getAttribute('user_id');
+        User::logout($userId);
+
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'message' => 'Sesión cerrada correctamente'
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+    }
+
     private function errorResponse(Response $response, string $message, int $status)
     {
         $response->getBody()->write(json_encode([

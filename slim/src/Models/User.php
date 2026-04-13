@@ -44,4 +44,11 @@ class User
             'id'    => $userId      // Coincide con :id
         ]);
     }
+
+    public static function logout($userId)
+    {
+        $db = DB::getConnection();
+        $stmt = $db->prepare("UPDATE users SET token = NULL, token_expired_at = NULL WHERE id = :id");
+        return $stmt->execute(['id' => $userId]);
+    }
 }
