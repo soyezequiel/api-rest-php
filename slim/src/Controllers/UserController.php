@@ -1,10 +1,11 @@
 <?php
 
+namespace App\Controllers;
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Firebase\JWT\JWT;
-
-require_once __DIR__ . '/../models/User.php';
+use App\Models\User;
 
 class UserController
 {
@@ -15,31 +16,24 @@ class UserController
         $email = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
 
-        // 1. Validar nombre (solo letras)
+        // 1. Validaciones de formato (incluyen el chequeo de empty)
         if (empty($name) || !preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/", $name)) {
             return $this->errorResponse($response, 'El nombre es obligatorio y solo debe contener letras', 400);
         }
 
-        // 2. Validar email (debe contener @)
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->errorResponse($response, 'El formato de email no es válido (ej: usuario@unlp.edu.ar)', 400);
+            return $this->errorResponse($response, 'El formato de email no es válido', 400);
         }
 
-        // 3. Validar password (8 caracteres, Mayús, Minús, Número y Especial)
         $regexPass = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&+])[A-Za-z\d@$!%*?&]{8,}$/";
         if (!preg_match($regexPass, $password)) {
-            return $this->errorResponse($response, 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial', 400);
+            return $this->errorResponse($response, 'La contraseña no cumple los requisitos de seguridad', 400);
         }
 
         try {
-            if (empty($name) || empty($email) || empty($password)) {
-                $response->getBody()->write(json_encode(['status' => 'error', 'message' => 'Datos incompletos']));
-                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-            }
 
             if (User::emailExists($email)) {
-                $response->getBody()->write(json_encode(['status' => 'error', 'message' => 'El email ya está registrado']));
-                return $response->withHeader('Content-Type', 'application/json')->withStatus(409);
+                return $this->errorResponse($response, 'El email ya está registrado', 409);
             }
 
             User::create($name, $email, $password);
@@ -50,7 +44,7 @@ class UserController
             ]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
         } catch (\Exception $e) {
-            throw $e;
+            return $this->errorResponse($response, 'Error interno del servidor', 500);
         }
     }
 
@@ -74,17 +68,20 @@ class UserController
                 'exp' => $expirationTime
             ];
 
-
             $token = JWT::encode($payload, $secretKey, 'HS256');
 
-            $dateFormatted = date('Y-m-d H:i:s', $expirationTime);
-            User::updateToken($user['id'], $token, $dateFormatted);
-            
+            $currentDate = date('Y-m-d H:i:s');
+            $expirationDate = date('Y-m-d H:i:s', $expirationTime);
+
+            User::updateToken($user['id'], $token, $expirationDate, $currentDate);
+
             $response->getBody()->write(json_encode([
                 'status' => 'success',
                 'token' => $token,
                 'message' => 'Login exitoso'
             ]));
+
+
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         }
 

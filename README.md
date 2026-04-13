@@ -1,36 +1,25 @@
-Seminario de PHP, React, y API Rest
-===================================
+# Seminario PHP - API REST de Inversiones (UNLP)
 
-## Configuración inicial
+## Requisitos
+* Docker Desktop
 
-1. Crear archivo `.env` a partir de `.env.dist`
+## Configuración Inicial
+1. Crear archivo `.env` a partir de la plantilla:
+   `cp .env.dist .env` (y configurar las claves reales).
+2. Crear volumen para la base de datos:
+   `docker volume create seminariophp`
+3. Iniciar servicios:
+   `docker-compose up -d`
+4. Instalar dependencias (desde la carpeta /slim):
+   `docker run --rm -v ${PWD}:/app composer install`
+5. Importar base de datos:
+   Importar `db/schema.sql` en phpMyAdmin (`localhost:8080`).
 
-```bash
-cp .env.dist .env
-```
+## Comandos Útiles
+* **Bajar servicios:** `docker-compose down -v`
+* **Limpiar DB:** `docker volume rm seminariophp`
 
-2. Crear volumen para la base de datos
-
-```bash
-docker volume create seminariophp
-```
-
-donde *seminariophp* es el valor de la variable `DB_VOLUME`
-
-## Iniciar servicios
-
-```bash
-docker compose up -d
-```
-
-## Terminar servicios
-
-```bash
-docker compose down -v
-```
-
-## Eliminar base de datos
-
-```bash
-docker volume rm seminariophp
-```
+## Tecnologías y Librerías
+* **Slim 4**: Framework base.
+* **Firebase PHP-JWT**: Autenticación con tokens.
+* **PHP-Dotenv**: Variables de entorno.

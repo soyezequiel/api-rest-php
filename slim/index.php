@@ -3,33 +3,28 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
+use Slim\Exception\HttpNotFoundException;
 
-// 1. El Autoload es lo primero: carga Slim y Dotenv
+use App\Middleware\AuthMiddleware;
+use App\Controllers\UserController;
+
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/controllers/UserController.php';
 
-// 2. Carga de variables de entorno (Indispensable para la HU-01)
+date_default_timezone_set('America/Argentina/Buenos_Aires');
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-// 3. Requerir la clase DB después de cargar el entorno
-require_once __DIR__ . '/models/DB.php'; 
-
 $app = AppFactory::create();
-$app->setBasePath((function () {
-    $scriptName = $_SERVER['SCRIPT_NAME'];
-    return strpos($scriptName, 'index.php') !== false ? $scriptName : '';
-})());
+$app->setBasePath("");
 $app->addRoutingMiddleware();
 $app->addBodyParsingMiddleware();
 
-// Configuración del ErrorMiddleware
 $errorMiddleware = $app->addErrorMiddleware(($_ENV['APP_DEBUG'] ?? 'false') === 'true', true, true);
 
-// Forzamos que los errores de Slim se devuelvan siempre como JSON
 $errorMiddleware->setDefaultErrorHandler(function ($request, $exception, $displayErrorDetails) use ($app) {
     $response = $app->getResponseFactory()->createResponse();
-    
+
     $payload = [
         'status' => 'error',
         'message' => $exception->getMessage(),
@@ -41,13 +36,13 @@ $errorMiddleware->setDefaultErrorHandler(function ($request, $exception, $displa
     }
 
     $response->getBody()->write(json_encode($payload));
-    
+
     return $response
         ->withHeader('Content-Type', 'application/json')
         ->withStatus(500); // O el código que corresponda
 });
 
-$app->add( function ($request, $handler) {
+$app->add(function ($request, $handler) {
     $response = $handler->handle($request);
 
     return $response
@@ -69,8 +64,39 @@ $app->get('/test-env', function (Request $request, Response $response) {
     return $response;
 });
 
-$app->post('/usuarios', [UserController::class, 'registrar']);
+
+$app->post('/register', [UserController::class, 'registrar']);
 $app->post('/login', [UserController::class, 'login']);
 
-$app->run();
+// Manejador para rutas no encontradas
+$errorMiddleware->setErrorHandler(
+    HttpNotFoundException::class,
+    function ($request, $exception, $displayErrorDetails) use ($app) {
+        $response = $app->getResponseFactory()->createResponse();
+        $response->getBody()->write(json_encode([
+            "status" => "error",
+            "message" => "Ruta no encontrada (404)"
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+    }
+);
 
+// Grupo de rutas protegidas (aquí irán el portfolio, compra/venta, etc.)
+$app->group('/api', function ($group) {
+
+    // Ruta de prueba para verificar el Middleware
+    $group->get('/test-auth', function ($request, $response) {
+        $userId = $request->getAttribute('user_id');
+        $response->getBody()->write(json_encode([
+            "status" => "success",
+            "message" => "Acceso concedido para el usuario ID: " . $userId
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
+    //Acá agregamos rutas protegidas, por ejemplo:
+    // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']); 
+
+})->add(new AuthMiddleware());
+
+$app->run();

@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Models;
+
 class User
 {
     public static function create($name, $email, $password)
@@ -27,13 +29,19 @@ class User
         $db = DB::getConnection();
         $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
-        return $stmt->fetch(PDO::FETCH_ASSOC); // Retorna un array con los datos o false
+        return $stmt->fetch(\PDO::FETCH_ASSOC); // Retorna un array con los datos o false
     }
 
-    public static function updateToken($userId, $token, $expiration)
+    public static function updateToken($userId, $token, $expiration, $creation)
     {
         $db = DB::getConnection();
-        $stmt = $db->prepare("UPDATE users SET token = ?, token_expired_at = ? WHERE id = ?");
-        return $stmt->execute([$token, $expiration, $userId]);
+        $stmt = $db->prepare("UPDATE users SET token = :token, token_expired_at = :exp, created_at = :gen WHERE id = :id");
+
+        $stmt->execute([
+            'token' => $token,    // Coincide con :token
+            'exp'   => $expiration, // Coincide con :exp
+            'gen'   => $creation,   // Coincide con :gen
+            'id'    => $userId      // Coincide con :id
+        ]);
     }
 }
