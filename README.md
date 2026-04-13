@@ -9,14 +9,14 @@
 2. Crear volumen para la base de datos:
    `sudo docker volume create seminariophp`
 3. Iniciar servicios:
-   `docker-compose up -d`
-4. Instalar dependencias (desde la carpeta /slim):
-   `docker run --rm -v ${PWD}:/app composer install`
+   `docker compose up -d`
+4. Instalar dependencias (desde la carpeta `/slim`):
+   `docker run --rm -v $(pwd):/app composer install`
 5. Importar base de datos:
    Importar `db/schema.sql` en phpMyAdmin (`localhost:8080`).
 
 ## Comandos Útiles
-* **Bajar servicios:** `docker-compose down -v`
+* **Bajar servicios:** `docker compose down -v`
 * **Limpiar DB:** `docker volume rm seminariophp`
 
 ## Tecnologías y Librerías
