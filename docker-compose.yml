@@ -41,7 +41,7 @@ services:
         build: ./docker/slim
         image: ${COMPOSE_PROJECT_NAME}_slim
         volumes:
-            - ./slim:/var/www/html
+            - ./:/var/www/html
         networks:
             - app
         ports:

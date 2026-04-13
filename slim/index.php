@@ -12,7 +12,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 $app = AppFactory::create();
@@ -64,7 +64,6 @@ $app->get('/test-env', function (Request $request, Response $response) {
     return $response;
 });
 
-
 $app->post('/register', [UserController::class, 'registrar']);
 $app->post('/login', [UserController::class, 'login']);
 
@@ -96,6 +95,7 @@ $app->group('/api', function ($group) {
 
     //Acá agregamos rutas protegidas, por ejemplo:
     // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']); 
+    
 
 })->add(new AuthMiddleware());
 

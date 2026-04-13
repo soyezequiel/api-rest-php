@@ -8,4 +8,4 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql && \
     rm -rf /var/www/html
 
 # ejecutar servidor
-CMD [ "php", "-S", "0.0.0.0:80" ]
+CMD [ "php", "-S", "0.0.0.0:80", "-t", "slim", "slim/index.php" ]
