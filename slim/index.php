@@ -7,6 +7,7 @@ use Slim\Exception\HttpNotFoundException;
 
 use App\Middleware\AuthMiddleware;
 use App\Controllers\UserController;
+use App\Controllers\AssetController;
 
 require_once __DIR__ . '/vendor/autoload.php'; //Carga automáticamente todas las librerías externas (Slim, JWT, Dotenv) instaladas vía Composer
 
@@ -64,6 +65,8 @@ $app->get('/test-env', function (Request $request, Response $response) {
     $response->getBody()->write(json_encode($data));
     return $response;
 });
+
+$app->get('/listar', [AssetController::class, 'listar']);
 
 $app->get('/test-db-connection', function (Request $request, Response $response) {
     try {
