@@ -26,8 +26,8 @@ services:
         environment:
             PMA_HOST: db
             PMA_PORT: 3306
-            PMA_USER: ${DB_USER}
-            PMA_PASSWORD: ${DB_PASS}
+            PMA_USER: root
+            PMA_PASSWORD: root
         networks:
             - db
         ports:
@@ -41,7 +41,7 @@ services:
         build: ./docker/slim
         image: ${COMPOSE_PROJECT_NAME}_slim
         volumes:
-            - ./slim:/var/www/html
+            - ./:/var/www/html
         networks:
             - app
         ports:

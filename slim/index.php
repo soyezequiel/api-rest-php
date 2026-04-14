@@ -12,7 +12,7 @@ require_once __DIR__ . '/vendor/autoload.php'; //Carga automáticamente todas la
 
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 $app = AppFactory::create();
@@ -65,9 +65,33 @@ $app->get('/test-env', function (Request $request, Response $response) {
     return $response;
 });
 
+$app->get('/test-db-connection', function (Request $request, Response $response) {
+    try {
+        // Intentamos conectar usando las variables que ya sabemos que existen
+        $conn = new mysqli($_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME']);
+        
+        if ($conn->connect_error) {
+            throw new Exception("Fallo de conexión: " . $conn->connect_error);
+        }
+
+        $data = ['status' => 'success', 'message' => 'Conectado a MySQL con exito'];
+        $conn->close();
+    } catch (Exception $e) {
+        $data = [
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'host_intentado' => $_ENV['DB_HOST']
+        ];
+    }
+    
+    $response->getBody()->write(json_encode($data));
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
 // Rutas de autenticación
 $app->post('/users', [UserController::class, 'registrar']);
 $app->post('/login', [UserController::class, 'login']);
+$app->post('/logout', [UserController::class, 'logout']);
 
 // Manejador para rutas no encontradas
 $errorMiddleware->setErrorHandler(
