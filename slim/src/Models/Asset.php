@@ -28,7 +28,7 @@ class Asset
         }
 
         
-        $stmt = $db->prepare("SELECT name, current_price FROM assets WHERE 1=1 $query");
+        $stmt = $db->prepare("SELECT id,name, current_price FROM assets WHERE 1=1 $query");
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);  
     } 
