@@ -4,15 +4,20 @@ class VariarPrecioPorTiempo {
     public function main($precioActual, $timestampUltimaVez, $volatilidadPorSegundo = 0.05) {
         $tiempoPasado = time() - $timestampUltimaVez;
         
-        if($tiempoPasado < 0) {
-            return $precioActual; // Si el timestamp es del futuro, no variamos el precio
+        if($tiempoPasado <= 0) {
+            return $precioActual;
         }
 
-        $direccion = mt_rand(-100, 100) /100; // Genera un número entre -1 y 1 para determinar la dirección de la variación
-        $variacion = $volatilidadPorSegundo * $tiempoPasado * $direccion; // Calcula la variación total basada en el tiempo pasado y la dirección
+        // 1. Mantenemos tu lógica de dirección original
+        $direccion = mt_rand(-100, 100) / 100; 
 
+        // 2. Calculamos la variación total basada en el tiempo pasado
+        $variacion = ($volatilidadPorSegundo / 10) * $tiempoPasado * $direccion; 
+
+        // 3. Aplicamos la variación al precio actual
         $precioNuevo = $precioActual + $variacion;
 
-        return $precioNuevo;
+        // 4. Piso mínimo de 0.01 para que nunca valga cero
+        return round(max(0.01, $precioNuevo), 2);
     }
 }
