@@ -12,7 +12,7 @@ cp .env.dist .env
 2. Crear volumen para la base de datos
 
 ```bash
-docker volume create seminariophp
+sudo docker volume create seminariophp
 ```
 
 donde *seminariophp* es el valor de la variable `DB_VOLUME`
@@ -20,17 +20,17 @@ donde *seminariophp* es el valor de la variable `DB_VOLUME`
 ## Iniciar servicios
 
 ```bash
-docker compose up -d
+sudo docker compose up -d
 ```
 
 ## Terminar servicios
 
 ```bash
-docker compose down -v
+sudo docker compose down -v
 ```
 
 ## Eliminar base de datos
 
 ```bash
-docker volume rm seminariophp
+sudo docker volume rm seminariophp
 ```
