@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Controllers;
+
 class VariarPrecioPorTiempo {
     public function main($precioActual, $timestampUltimaVez, $volatilidadPorSegundo = 0.05) {
         $tiempoPasado = time() - $timestampUltimaVez;

@@ -51,4 +51,13 @@ class User
         $stmt = $db->prepare("UPDATE users SET token = NULL, token_expired_at = NULL WHERE id = :id");
         return $stmt->execute(['id' => $userId]);
     }
+
+
+    public static function getById($userId)
+    {
+        $db = DB::getConnection();
+        $stmt = $db->prepare("SELECT id, name, email, balance, is_admin FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 }

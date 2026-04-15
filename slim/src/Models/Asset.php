@@ -33,5 +33,30 @@ class Asset
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);  
     } 
 
+    public static function actualizarPrecio(array $data =[]){
+
+        $db = DB::getConnection();
+        $adminId = $data['is_admin'] ?? null;
+
+        // Obtener todos los assets
+        $stmt = $db->prepare("SELECT id, current_price, last_update FROM assets");
+        $stmt->execute();
+        $assets = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Instancia de la clase para variar precios
+        $variador = new \App\Controllers\VariarPrecioPorTiempo();
+
+        foreach ($assets as $asset) {
+            $timestampUltimaVez = strtotime($asset['last_update']);
+            $precioActual = (float) $asset['current_price'];
+            $nuevoPrecio = $variador->main($precioActual, $timestampUltimaVez);
+
+            // Actualizar el precio y last_update
+            $updateStmt = $db->prepare("UPDATE assets SET current_price = ?, last_update = NOW() WHERE id = ?");
+            $updateStmt->execute([$nuevoPrecio, $asset['id']]);
+        }
+
+        return true; // O algún indicador de éxito
+    }
 
 }
