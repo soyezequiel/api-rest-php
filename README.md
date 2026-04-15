@@ -42,7 +42,7 @@ El siguiente diagrama explica la secuencia y el momento en el que debes ejecutar
 ```mermaid
 graph TD
     A([Inicio del Proyecto]) -->|Paso 1 - Única vez| B[<code>cp .env.dist .env</code><br/>Configurar variables de entorno]
-    B -->|Paso 2 - Única vez| C[<code>sudo docker volume create seminariophp</code><br/>Crear volumen para la DB]
+    B -->|Paso 2 - Cuando no exista| C[<code>sudo docker volume create seminariophp</code><br/>Crear volumen para la DB]
     
     C --> D{{Ciclo de Trabajo}}
     
@@ -53,6 +53,7 @@ graph TD
     G -->|Retomar trabajo luego| D
     
     G -->|Paso 5 - Limpieza o reinicio total| H[<code>sudo docker volume rm seminariophp</code><br/>Eliminar datos permanentemente]
+    H -->|Antes de volver a levantar servicios| C
 ```
 
 ## Problemas comunes y soluciones

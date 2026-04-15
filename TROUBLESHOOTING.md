@@ -2,6 +2,24 @@
 
 Durante el desarrollo con Docker, es normal enfrentarse a ciertos errores de configuración o de estado de la red. A continuación, se detallan los problemas más frecuentes y cómo solucionarlos.
 
+## Reiniciar Docker cuando queda un puerto o proxy trabado
+
+**El problema:**
+A veces Docker se queda con estado interno viejo después de un `up`, un `down` o un cierre inesperado. En ese caso puede dejar un `docker-proxy` colgado, reservar un puerto que parece libre o mantener una red en un estado inconsistente.
+
+**La solución:**
+Reiniciar el servicio de Docker limpia ese estado temporal y vuelve a levantar el daemon desde cero. Eso suele liberar puertos que quedaron enganchados y hace que Docker reconstruya sus redes y proxies correctamente.
+
+```bash
+sudo systemctl restart docker
+```
+
+Después de eso, volvé a levantar el proyecto:
+
+```bash
+sudo docker compose up -d
+```
+
 ## Error de Red: `iptables failed: Chain 'DOCKER-ISOLATION-STAGE-2' does not exist`
 
 **El problema:** 
