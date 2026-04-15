@@ -54,3 +54,7 @@ graph TD
     
     G -->|Paso 5 - Limpieza o reinicio total| H[<code>sudo docker volume rm seminariophp</code><br/>Eliminar datos permanentemente]
 ```
+
+## Problemas comunes y soluciones
+
+Si encuentras algún error al iniciar o detener los servicios (especialmente errores de red de Docker o puertos en uso), consulta la guía de [Solución de Problemas (TROUBLESHOOTING.md)](./TROUBLESHOOTING.md) para encontrar los pasos detallados para resolverlos.
