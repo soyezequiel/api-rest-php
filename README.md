@@ -34,3 +34,23 @@ sudo docker compose down -v
 ```bash
 sudo docker volume rm seminariophp
 ```
+
+## Flujo de uso de comandos
+
+El siguiente diagrama explica la secuencia y el momento en el que debes ejecutar cada comando a lo largo del desarrollo del proyecto:
+
+```mermaid
+graph TD
+    A([Inicio del Proyecto]) -->|Paso 1 - Única vez| B[<code>cp .env.dist .env</code><br/>Configurar variables de entorno]
+    B -->|Paso 2 - Única vez| C[<code>sudo docker volume create seminariophp</code><br/>Crear volumen para la DB]
+    
+    C --> D{{Ciclo de Trabajo}}
+    
+    D -->|Paso 3 - Iniciar sesión de trabajo| E[<code>sudo docker compose up -d</code><br/>Arrancar servicios en 2do plano]
+    E --> F([Desarrollo y Pruebas])
+    F -->|Paso 4 - Finalizar sesión de trabajo| G[<code>sudo docker compose down -v</code><br/>Detener y limpiar contenedores]
+    
+    G -->|Retomar trabajo luego| D
+    
+    G -->|Paso 5 - Limpieza o reinicio total| H[<code>sudo docker volume rm seminariophp</code><br/>Eliminar datos permanentemente]
+```
