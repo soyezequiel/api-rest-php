@@ -53,6 +53,36 @@ class AssetController
         }
     }
 
+    public function consultarHistorial(Request $request, Response $response, array $args = [])
+    {
+        $asset_id = (int)$args['asset_id'];   
+        $quantity = (int)$args['quantity'];
+        // Validar que quantity esté entre 1 y 5
+        if ($quantity < 1 || $quantity > 5) {
+            return $this->errorResponse($response, 'Quantity no esta entre 1 y 5', 400);
+        }
+        
+        try {
+            $historial = Asset::getHistorial($asset_id, $quantity); 
+            // Si el historial es null, significa que no se encontró el asset
+            if($historial === null) {
+                return $this->errorResponse($response, 'No existe ese activo', 404);
+            }
+
+            // Si el historial es un array vacío, significa que no hay registros para ese asset
+            $response->getBody()->write(json_encode([
+                "status" => "success",
+                "data" => $historial
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (\Exception $e) {
+            return $this->errorResponse($response, 'Error al consultar historial de precios', 409);
+        }
+
+
+    }
+
+
     private function errorResponse(Response $response, string $message, int $status)
         {
             $response->getBody()->write(json_encode([

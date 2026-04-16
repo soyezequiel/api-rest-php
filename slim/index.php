@@ -69,7 +69,7 @@ $app->get('/test-env', function (Request $request, Response $response) {
 //Fabri
 $app->get('/listar', [AssetController::class, 'listar']);
 $app->put('/assets', [AssetController::class, 'actualizarPrecio'])->add(new AuthMiddleware());
-
+$app->get('/assets/{asset_id}/history/{quantity}', [AssetController::class, 'consultarHistorial']);
 
 $app->get('/test-db-connection', function (Request $request, Response $response) {
     try {

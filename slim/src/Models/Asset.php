@@ -59,4 +59,25 @@ class Asset
         return true; // O algún indicador de éxito
     }
 
+    public static function getHistorial($asset_id, $quantity) {
+        $db = DB::getConnection();
+        $check = $db->prepare("SELECT id FROM assets WHERE id = ?");
+        $check->execute([$asset_id]);
+
+        if (!$check->fetch()) {
+            return null; // Asset no encontrado
+        }
+
+        $stmt = $db->prepare("
+            SELECT price_per_unit, transaction_date FROM transactions
+            WHERE asset_id = ?
+            ORDER BY transaction_date DESC
+            LIMIT $quantity
+            ");
+
+         $stmt->execute([$asset_id]);
+
+         return $stmt->fetchAll(\PDO::FETCH_ASSOC);  
+    }
+
 }
