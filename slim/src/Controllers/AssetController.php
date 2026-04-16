@@ -13,9 +13,17 @@ class AssetController
     public function listar(Request $request, Response $response)
     {
         $queryParams = $request->getQueryParams();
+        $allowedFilters = ['min_price', 'max_price', 'type'];
 
+        $invalidParams = array_diff(array_keys($queryParams), $allowedFilters);
+
+        if(!empty($invalidParams)) {  
+            return $this->errorResponse(
+                $response,'Parámetros inválidos',400);   
+        }
+        
         try {
-            $assets = Asset::sinFiltro($queryParams);
+            $assets = Asset::obtenerAssetsFiltrados($queryParams);
 
             $response->getBody()->write(json_encode([
                 'status' => 'success',

@@ -4,7 +4,7 @@ namespace App\Models;
 
 class Asset
 {
- public static function sinFiltro(array $filtro = [])
+ public static function obtenerAssetsFiltrados(array $filtro = [])
     {
         $db = DB::getConnection();
         $query = "";
