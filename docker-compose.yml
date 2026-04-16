@@ -40,6 +40,8 @@ services:
     slim:
         build: ./docker/slim
         image: ${COMPOSE_PROJECT_NAME}_slim
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
         volumes:
             - ./:/var/www/html
         networks:
