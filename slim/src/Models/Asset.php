@@ -44,7 +44,7 @@ class Asset
         $assets = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // Instancia de la clase para variar precios
-        $variador = new \App\Controllers\VariarPrecioPorTiempo();
+        $variador = new \App\Controllers\variarPrecioPorTiempo();
 
         foreach ($assets as $asset) {
             $timestampUltimaVez = strtotime($asset['last_update']);
