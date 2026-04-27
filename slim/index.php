@@ -9,6 +9,8 @@ use App\Middleware\AuthMiddleware;
 use App\Controllers\UserController;
 use App\Controllers\AssetController;
 
+use App\Controllers\TradeController; // importo el controlador para comprar
+
 require_once __DIR__ . '/vendor/autoload.php'; //Carga automáticamente todas las librerías externas (Slim, JWT, Dotenv) instaladas vía Composer
 
 date_default_timezone_set('America/Argentina/Buenos_Aires');
@@ -75,7 +77,7 @@ $app->get('/test-db-connection', function (Request $request, Response $response)
     try {
         // Intentamos conectar usando las variables que ya sabemos que existen
         $conn = new mysqli($_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME']);
-        
+
         if ($conn->connect_error) {
             throw new Exception("Fallo de conexión: " . $conn->connect_error);
         }
@@ -89,7 +91,7 @@ $app->get('/test-db-connection', function (Request $request, Response $response)
             'host_intentado' => $_ENV['DB_HOST']
         ];
     }
-    
+
     $response->getBody()->write(json_encode($data));
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -114,7 +116,6 @@ $errorMiddleware->setErrorHandler(
 
 // Grupo de rutas protegidas (aquí irán el portfolio, compra/venta, etc.)
 $app->group('/api', function ($group) {
-
     // Ruta de prueba para verificar el Middleware
     $group->get('/test-auth', function ($request, $response) {
         $userId = $request->getAttribute('user_id');
@@ -130,6 +131,8 @@ $app->group('/api', function ($group) {
 
     // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);
+    // Endpoint para la compra de activos
+    $group->post('/trade/buy', [TradeController::class, 'buy']);
 
 })->add(new AuthMiddleware());
 

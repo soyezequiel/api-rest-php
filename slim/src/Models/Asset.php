@@ -4,36 +4,37 @@ namespace App\Models;
 
 class Asset
 {
- public static function obtenerAssetsFiltrados(array $filtro = [])
+    public static function obtenerAssetsFiltrados(array $filtro = [])
     {
         $db = DB::getConnection();
         $query = "";
         $params = [];
 
-        if(isset($filtro['max_price']) && $filtro['max_price'] !== '') {
+        if (isset($filtro['max_price']) && $filtro['max_price'] !== '') {
             $query .= " AND current_price <= :max_price";
-            
-            $params['max_price'] = $filtro['max_price'];
-        } 
 
-        if(isset($filtro['min_price']) && $filtro['min_price'] !== '') {
+            $params['max_price'] = $filtro['max_price'];
+        }
+
+        if (isset($filtro['min_price']) && $filtro['min_price'] !== '') {
             $query .= " AND current_price >= :min_price";
-            
+
             $params['min_price'] = $filtro['min_price'];
         }
 
-        if(isset($filtro['type']) && $filtro['type'] !== '') {
+        if (isset($filtro['type']) && $filtro['type'] !== '') {
             $query .= " AND name LIKE :type";
             $params['type'] = '%' . $filtro['type'] . '%';
         }
 
-        
+
         $stmt = $db->prepare("SELECT id,name, current_price FROM assets WHERE 1=1 $query");
         $stmt->execute($params);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);  
-    } 
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
-    public static function actualizarPrecio(array $data =[]){
+    public static function actualizarPrecio(array $data = [])
+    {
 
         $db = DB::getConnection();
         $adminId = $data['is_admin'] ?? null;
@@ -59,7 +60,8 @@ class Asset
         return true; // O algún indicador de éxito
     }
 
-    public static function getHistorial($asset_id, $quantity) {
+    public static function getHistorial($asset_id, $quantity)
+    {
         $db = DB::getConnection();
         $check = $db->prepare("SELECT id FROM assets WHERE id = ?");
         $check->execute([$asset_id]);
@@ -75,9 +77,16 @@ class Asset
             LIMIT $quantity
             ");
 
-         $stmt->execute([$asset_id]);
+        $stmt->execute([$asset_id]);
 
-         return $stmt->fetchAll(\PDO::FETCH_ASSOC);  
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    public static function getById($asset_id)
+    {
+        $db = DB::getConnection();
+        $consulta = $db->prepare("SELECT id, current_price FROM assets WHERE ID = ?");
+        $consulta->execute([$asset_id]);
+        return $consulta->fetch(\PDO::FETCH_ASSOC);
+    }
 }
