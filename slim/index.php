@@ -134,7 +134,7 @@ $app->group('/api', function ($group) {
     //Acá agregamos rutas protegidas, por ejemplo:
     // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
     $group->get('/portfolio', [PortfolioController::class, 'obtenerPortafolio']);
-    $group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarActivoEnCero']);
+    $group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
     $group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
     // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);
