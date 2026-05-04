@@ -22,7 +22,7 @@ class PortfolioController
     public function borrarPortafolio(Request $request, Response $response, array $args = [])
     {
         $userId = $request->getAttribute('user_id');
-        $assetId = $request->getAttribute('asset_id');
+        $assetId = $args['asset_id'];
         $respuesta = \App\Models\Portfolio::borrarActivoEnCero($userId, $assetId);
 
         if ($respuesta === 'no existe') {
@@ -36,7 +36,7 @@ class PortfolioController
         if ($respuesta === 'tiene cantidad') {
             $response->getBody()->write(json_encode([
                 'status' => 'error',
-                'message' => 'No se puede borrar el activo porque tiene cantidad',
+                'message' => 'No puedes quitar un activo de tu portfolio si aún tienes unidades. Debes venderlas primero.',
             ]));
             return $response->withStatus(409)->withHeader('Content-type', 'application/json');
         }
