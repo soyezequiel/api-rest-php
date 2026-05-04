@@ -9,9 +9,14 @@ class TransactionController
 {
     public function obtenerTransacciones(Request $request, Response $response, array $args = [])
     {
-
         $userId = $request->getAttribute('user_id');
-        $transacciones = \App\Models\Transaction::obtenerPorUsuario($userId);
+        $filtros = $request->getQueryParams();
+        $tipo = $filtros['type'];
+        $asset_id = $filtros['asset_id'];
+
+
+
+        $transacciones = \App\Models\Transaction::obtenerPorUsuario($userId, $tipo, $asset_id);
 
         $response->getBody()->write(json_encode([
             'status' => 'success',

@@ -7,7 +7,7 @@ use PDO;
 
 class Transaction
 {
-    public static function obtenerPorUsuario($userId)
+    public static function obtenerPorUsuario($userId, $type = null, $asset_id = null)
     {
         $db = DB::getConnection();
 
@@ -23,9 +23,19 @@ class Transaction
             FROM transactions t
             INNER JOIN assets a ON t.asset_id = a.id 
             WHERE t.user_id = :user_id
+            AND t.transaction_type = :type
+            AND t.asset_id = :asset_id
+            ORDER BY t.transaction_date DESC
         ";
         $sentencia = $db->prepare($sql);
         $sentencia->bindValue(":user_id", $userId, PDO::PARAM_INT);
+        // Los otros binds solo se agregan si la variable tiene un valor (y por ende, si están en el string SQL)
+        if ($type !== null) {
+            $sentencia->bindValue(":type", $type, PDO::PARAM_STR); // El tipo es string ('buy' o 'sell')
+        }
+        if ($asset_id !== null) {
+            $sentencia->bindValue(":asset_id", $asset_id, PDO::PARAM_INT); // El ID del activo es número
+        }
         $sentencia->execute();
         // 4. Retornas el arreglo armado
         return $sentencia->fetchAll(PDO::FETCH_ASSOC);
