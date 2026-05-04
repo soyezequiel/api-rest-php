@@ -100,6 +100,7 @@ $app->get('/test-db-connection', function (Request $request, Response $response)
 $app->post('/users', [UserController::class, 'registrar']);
 $app->post('/login', [UserController::class, 'login']);
 $app->post('/logout', [UserController::class, 'logout']);
+$app->post('/trade/buy', [TradeController::class, 'buy'])->add(new AuthMiddleware());
 
 // Manejador para rutas no encontradas
 $errorMiddleware->setErrorHandler(

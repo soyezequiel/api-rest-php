@@ -6,41 +6,71 @@ use Exception;
 
 class Trade
 {
-    public static function procesarCompra($usuarioId, $asset_id, $quantity, $current_price, $costoTotal)
+    public static function procesarCompra($usuarioId, $asset_id, $quantity)
     {
         $conexion = DB::getConnection();
 
         try {
-            // Empezamos la transacción atómica
             $conexion->beginTransaction();
 
-            // 1. Descontar saldo del usuario
-            $actualizarBalance = $conexion->prepare("UPDATE users SET balance = balance - ? WHERE id = ?");
-            $actualizarBalance->execute([$costoTotal, $usuarioId]);
+            $consultaActivo = $conexion->prepare("
+                SELECT id, current_price
+                FROM assets
+                WHERE id = ?
+                FOR UPDATE
+            ");
+            $consultaActivo->execute([$asset_id]);
+            $activo = $consultaActivo->fetch(\PDO::FETCH_ASSOC);
 
-            // 2. Alta o actualización de portfolio
-            // Usamos ON DUPLICATE KEY UPDATE por si el usuario ya tenía el activo
+            if (!$activo) {
+                $conexion->rollBack();
+                return ["status" => "asset_not_found"];
+            }
+
+            $current_price = (float)$activo['current_price'];
+            $costoTotal = $current_price * $quantity;
+
+            $actualizarBalance = $conexion->prepare("
+                UPDATE users
+                SET balance = balance - ?
+                WHERE id = ? AND balance >= ?
+            ");
+            $actualizarBalance->execute([$costoTotal, $usuarioId, $costoTotal]);
+
+            if ($actualizarBalance->rowCount() !== 1) {
+                $conexion->rollBack();
+                return [
+                    "status" => "insufficient_funds",
+                    "costo_total" => $costoTotal,
+                    "precio_ejecutado" => $current_price
+                ];
+            }
+
             $actualizarPortfolio = $conexion->prepare("
-                INSERT INTO portfolio (user_id, asset_id, quantity) 
-                VALUES (?, ?, ?) 
+                INSERT INTO portfolio (user_id, asset_id, quantity)
+                VALUES (?, ?, ?)
                 ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
             ");
             $actualizarPortfolio->execute([$usuarioId, $asset_id, $quantity]);
 
-            // 3. Registrar historial en transactions
             $registrarTransaccion = $conexion->prepare("
-                INSERT INTO transactions (user_id, asset_id, transaction_type, quantity, price_per_unit, total_amount) 
+                INSERT INTO transactions (user_id, asset_id, transaction_type, quantity, price_per_unit, total_amount)
                 VALUES (?, ?, 'buy', ?, ?, ?)
             ");
             $registrarTransaccion->execute([$usuarioId, $asset_id, $quantity, $current_price, $costoTotal]);
 
-            // Confirmar transacción
             $conexion->commit();
 
-            return true;
+            return [
+                "status" => "success",
+                "costo_total" => $costoTotal,
+                "precio_ejecutado" => $current_price
+            ];
         } catch (Exception $excepcion) {
-            // Si algo falla, deshacemos los cambios en las 3 tablas y pasamos el error arriba
-            $conexion->rollBack();
+            if ($conexion->inTransaction()) {
+                $conexion->rollBack();
+            }
+
             throw $excepcion;
         }
     }
