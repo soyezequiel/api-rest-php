@@ -32,8 +32,41 @@ class Portfolio
     public static function borrarActivoEnCero($userId, $assetId)
     {
         // 1. Buscas la cantidad que tiene el usuario de ese activo
+        $db = DB::getConnection();
+        $sql = "
+            SELECT
+                quantity
+            FROM portfolio
+            WHERE user_id = :user_id
+            AND asset_id = :asset_id
+        ";
+
+        $sentencia = $db->prepare($sql);
+        $sentencia->bindValue(":user_id", $userId, PDO::PARAM_INT);
+        $sentencia->bindValue(":asset_id", $assetId, PDO::PARAM_INT);
+        $sentencia->execute();
+        $resultado = $sentencia->fetch(PDO::FETCH_ASSOC);
         // 2. Si no existe, puedes devolver algo para disparar el 404
+        if (!$resultado) {
+            return 'no existe';
+        }
         // 3. Si cantidad > 0, devuelves algo para disparar el 409
+        if ($resultado['quantity'] > 0) {
+            return 'tiene cantidad';
+        }
         // 4. Si cantidad es exactamente 0 (o 0.00), haces el DELETE en la DB.
+        $sql = "
+            DELETE
+            FROM portfolio
+            WHERE user_id = :user_id
+            AND asset_id = :asset_id
+            AND quantity = 0
+        ";
+
+        $sentencia = $db->prepare($sql);
+        $sentencia->bindValue(":user_id", $userId, PDO::PARAM_INT);
+        $sentencia->bindValue(":asset_id", $assetId, PDO::PARAM_INT);
+        $sentencia->execute();
+        return 'success';
     }
 }

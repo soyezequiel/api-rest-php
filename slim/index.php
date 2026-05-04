@@ -104,6 +104,7 @@ $app->post('/logout', [UserController::class, 'logout']);
 $app->post('/trade/buy', [TradeController::class, 'buy'])->add(new AuthMiddleware());
 $app->GET('/portfolio', [PortfolioController::class, 'obtenerPortafolio'])->add(new AuthMiddleware());
 $app->GET('/transactions', [TransactionController::class, 'obtenerTransacciones'])->add(new AuthMiddleware());
+$app->DELETE('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio'])->add(new AuthMiddleware());
 
 // Manejador para rutas no encontradas
 $errorMiddleware->setErrorHandler(
@@ -133,7 +134,7 @@ $app->group('/api', function ($group) {
     //Acá agregamos rutas protegidas, por ejemplo:
     // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
     $group->get('/portfolio', [PortfolioController::class, 'obtenerPortafolio']);
-    //$group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
+    $group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarActivoEnCero']);
     $group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
     // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);
