@@ -8,7 +8,7 @@ use Slim\Exception\HttpNotFoundException;
 use App\Middleware\AuthMiddleware;
 use App\Controllers\UserController;
 use App\Controllers\AssetController;
-
+use App\Controllers\PortfolioController;
 use App\Controllers\TradeController; // importo el controlador para comprar
 
 require_once __DIR__ . '/vendor/autoload.php'; //Carga automáticamente todas las librerías externas (Slim, JWT, Dotenv) instaladas vía Composer
@@ -129,7 +129,9 @@ $app->group('/api', function ($group) {
 
     //Acá agregamos rutas protegidas, por ejemplo:
     // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
-
+    $group->get('/portfolio', [PortfolioController::class, 'obtenerPortafolio']);
+    //$group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
+    //$group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
     // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);
     // Endpoint para la compra de activos
