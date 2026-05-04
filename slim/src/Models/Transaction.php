@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use App\Models\DB; // Tu conexión a base de datos
+use App\Models\DB;
 use PDO;
 
-class Portfolio
+class Transaction
 {
     public static function obtenerPorUsuario($userId)
     {
@@ -13,14 +13,16 @@ class Portfolio
 
         $sql = "
             SELECT
-                p.asset_id,
+                t.asset_id,
                 a.name AS asset_name,
-                p.quantity,
-                a.current_price,
-                (p.quantity * a.current_price) AS total_value            
-            FROM portfolio p
-            INNER JOIN assets a ON p.asset_id = a.id 
-            WHERE p.user_id = :user_id
+                t.transaction_type,
+                t.quantity,
+                t.price_per_unit,
+                t.total_amount,
+                t.transaction_date       
+            FROM transactions t
+            INNER JOIN assets a ON t.asset_id = a.id 
+            WHERE t.user_id = :user_id
         ";
         $sentencia = $db->prepare($sql);
         $sentencia->bindValue(":user_id", $userId, PDO::PARAM_INT);

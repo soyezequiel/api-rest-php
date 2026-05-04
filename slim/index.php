@@ -10,6 +10,7 @@ use App\Controllers\UserController;
 use App\Controllers\AssetController;
 use App\Controllers\PortfolioController;
 use App\Controllers\TradeController; // importo el controlador para comprar
+use App\Controllers\TransactionController;
 
 require_once __DIR__ . '/vendor/autoload.php'; //Carga automáticamente todas las librerías externas (Slim, JWT, Dotenv) instaladas vía Composer
 
@@ -101,6 +102,8 @@ $app->post('/users', [UserController::class, 'registrar']);
 $app->post('/login', [UserController::class, 'login']);
 $app->post('/logout', [UserController::class, 'logout']);
 $app->post('/trade/buy', [TradeController::class, 'buy'])->add(new AuthMiddleware());
+$app->GET('/portfolio', [PortfolioController::class, 'obtenerPortafolio'])->add(new AuthMiddleware());
+$app->GET('/transactions', [TransactionController::class, 'obtenerTransacciones'])->add(new AuthMiddleware());
 
 // Manejador para rutas no encontradas
 $errorMiddleware->setErrorHandler(
@@ -131,7 +134,7 @@ $app->group('/api', function ($group) {
     // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
     $group->get('/portfolio', [PortfolioController::class, 'obtenerPortafolio']);
     //$group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
-    //$group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
+    $group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
     // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);
     // Endpoint para la compra de activos
