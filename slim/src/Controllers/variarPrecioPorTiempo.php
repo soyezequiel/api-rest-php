@@ -12,7 +12,7 @@ class VariarPrecioPorTiempo {
 
         $direccion = mt_rand(-100, 100) / 100; 
         
-        $variacion = ($volatilidadPorSegundo / 10) * $tiempoPasado * $direccion; 
+        $variacion = $volatilidadPorSegundo  * $tiempoPasado * $direccion; 
         
         $precioNuevo = $precioActual + $variacion;
         
