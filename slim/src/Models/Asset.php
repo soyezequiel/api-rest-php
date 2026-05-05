@@ -57,7 +57,7 @@ class Asset
             $updateStmt->execute([$nuevoPrecio, $asset['id']]);
         }
 
-        return true; // O algún indicador de éxito
+        return true;
     }
 
     public static function getHistorial($asset_id, $quantity)
