@@ -30,7 +30,7 @@ class TradeController
         }
 
         try {
-            $resultadoCompra = Trade::procesarCompra($usuarioId, (int)$asset_id, (int)$quantity);
+            $resultadoCompra = Trade::procesarCompra($usuarioId, (int) $asset_id, (int) $quantity);
 
             if ($resultadoCompra['status'] === 'asset_not_found') {
                 $respuestaError = ["status" => "error", "message" => "Activo inexistente"];
@@ -56,6 +56,58 @@ class TradeController
             $respuestaError = [
                 "status" => "error",
                 "message" => "Error al procesar la compra: " . $excepcion->getMessage()
+            ];
+            $response->getBody()->write(json_encode($respuestaError));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+    }
+    public function vender(Request $request, Response $response)
+    {
+        $usuarioId = $request->getAttribute('user_id');
+        $cuerpoPeticion = json_decode($request->getBody()->getContents(), true);
+        if (!is_array($cuerpoPeticion)) {
+            $cuerpoPeticion = [];
+        }
+
+        $asset_id = $cuerpoPeticion['asset_id'] ?? null;
+        $quantity = $cuerpoPeticion['quantity'] ?? null;
+
+        if (
+            !is_numeric($asset_id) || $asset_id <= 0 || floor($asset_id) != $asset_id ||
+            !is_numeric($quantity) || $quantity <= 0 || floor($quantity) != $quantity
+        ) {
+            $respuestaError = ["status" => "error", "message" => "Cantidad invalida o datos faltantes"];
+            $response->getBody()->write(json_encode($respuestaError));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        try {
+            $resultadoVenta = Trade::procesarVenta($usuarioId, (int) $asset_id, (int) $quantity);
+
+            if ($resultadoVenta['status'] === 'asset_not_found') {
+                $respuestaError = ["status" => "error", "message" => "Activo inexistente"];
+                $response->getBody()->write(json_encode($respuestaError));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+            }
+
+            if ($resultadoVenta['status'] === 'insuficientes activos') {
+                $respuestaError = ["status" => "error", "message" => "activos insuficientes"];
+                $response->getBody()->write(json_encode($respuestaError));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(409);
+            }
+
+            $respuestaExito = [
+                "status" => "success",
+                "message" => "Venta realizada con exito",
+                "costo_total" => $resultadoVenta['ganancia_total'],
+                "precio_ejecutado" => $resultadoVenta['precio_ejecutado']
+            ];
+            $response->getBody()->write(json_encode($respuestaExito));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (Exception $excepcion) {
+            $respuestaError = [
+                "status" => "error",
+                "message" => "Error al procesar la venta: " . $excepcion->getMessage()
             ];
             $response->getBody()->write(json_encode($respuestaError));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);

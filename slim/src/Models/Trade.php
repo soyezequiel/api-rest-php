@@ -16,10 +16,10 @@ class Trade
             $consultaActivo = $conexion->prepare("
                 SELECT id, current_price
                 FROM assets
-                WHERE id = ?
+                WHERE id = :asset_id
                 FOR UPDATE
             ");
-            $consultaActivo->execute([$asset_id]);
+            $consultaActivo->execute([':asset_id' => $asset_id]);
             $activo = $consultaActivo->fetch(\PDO::FETCH_ASSOC);
 
             if (!$activo) {
@@ -27,15 +27,19 @@ class Trade
                 return ["status" => "asset_not_found"];
             }
 
-            $current_price = (float)$activo['current_price'];
+            $current_price = (float) $activo['current_price'];
             $costoTotal = $current_price * $quantity;
 
             $actualizarBalance = $conexion->prepare("
                 UPDATE users
-                SET balance = balance - ?
-                WHERE id = ? AND balance >= ?
+                SET balance = balance - :costo
+                WHERE id = :user_id AND balance >= :costo_minimo
             ");
-            $actualizarBalance->execute([$costoTotal, $usuarioId, $costoTotal]);
+            $actualizarBalance->execute([
+                ':costo'        => $costoTotal,
+                ':user_id'      => $usuarioId,
+                ':costo_minimo' => $costoTotal
+            ]);
 
             if ($actualizarBalance->rowCount() !== 1) {
                 $conexion->rollBack();
@@ -48,22 +52,119 @@ class Trade
 
             $actualizarPortfolio = $conexion->prepare("
                 INSERT INTO portfolio (user_id, asset_id, quantity)
-                VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
+                VALUES (:user_id, :asset_id, :quantity)
+                ON DUPLICATE KEY UPDATE quantity = quantity + :quantity_update
             ");
-            $actualizarPortfolio->execute([$usuarioId, $asset_id, $quantity]);
+            $actualizarPortfolio->execute([
+                ':user_id'         => $usuarioId,
+                ':asset_id'        => $asset_id,
+                ':quantity'        => $quantity,
+                ':quantity_update' => $quantity
+            ]);
 
             $registrarTransaccion = $conexion->prepare("
                 INSERT INTO transactions (user_id, asset_id, transaction_type, quantity, price_per_unit, total_amount)
-                VALUES (?, ?, 'buy', ?, ?, ?)
+                VALUES (:user_id, :asset_id, 'buy', :quantity, :price_per_unit, :total_amount)
             ");
-            $registrarTransaccion->execute([$usuarioId, $asset_id, $quantity, $current_price, $costoTotal]);
+            $registrarTransaccion->execute([
+                ':user_id'        => $usuarioId,
+                ':asset_id'       => $asset_id,
+                ':quantity'       => $quantity,
+                ':price_per_unit' => $current_price,
+                ':total_amount'   => $costoTotal
+            ]);
 
             $conexion->commit();
 
             return [
                 "status" => "success",
                 "costo_total" => $costoTotal,
+                "precio_ejecutado" => $current_price
+            ];
+        } catch (Exception $excepcion) {
+            if ($conexion->inTransaction()) {
+                $conexion->rollBack();
+            }
+
+            throw $excepcion;
+        }
+    }
+    public static function procesarVenta($usuarioId, $asset_id, $quantity)
+    {
+        $conexion = DB::getConnection();
+
+        try {
+            $conexion->beginTransaction();
+
+            $consultaActivo = $conexion->prepare("
+                SELECT id, current_price
+                FROM assets
+                WHERE id = :asset_id
+                FOR UPDATE
+            ");
+            $consultaActivo->execute([':asset_id' => $asset_id]);
+            $activo = $consultaActivo->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$activo) {
+                $conexion->rollBack();
+                return ["status" => "asset_not_found"];
+            }
+
+            $current_price = (float) $activo['current_price'];
+            $gananciaTotal = $current_price * $quantity;
+
+            // Primero descontar del portafolio asegurando que tenga suficientes activos
+            $actualizarPortfolio = $conexion->prepare("
+                UPDATE portfolio
+                SET quantity = quantity - :cantidad
+                WHERE user_id = :user_id 
+                  AND asset_id = :asset_id 
+                  AND quantity >= :cantidad_minima
+            ");
+            $actualizarPortfolio->execute([
+                ':cantidad'        => $quantity,
+                ':user_id'         => $usuarioId,
+                ':asset_id'        => $asset_id,
+                ':cantidad_minima' => $quantity
+            ]);
+
+            if ($actualizarPortfolio->rowCount() !== 1) {
+                $conexion->rollBack();
+                return [
+                    "status" => "insuficientes activos",
+                    "ganancia_total" => $gananciaTotal,
+                    "precio_ejecutado" => $current_price
+                ];
+            }
+
+            // Sumar el saldo obtenido al usuario
+            $actualizarBalance = $conexion->prepare("
+                UPDATE users
+                SET balance = balance + :ganancia
+                WHERE id = :user_id
+            ");
+            $actualizarBalance->execute([
+                ':ganancia' => $gananciaTotal,
+                ':user_id'  => $usuarioId
+            ]);
+
+            $registrarTransaccion = $conexion->prepare("
+                INSERT INTO transactions (user_id, asset_id, transaction_type, quantity, price_per_unit, total_amount)
+                VALUES (:user_id, :asset_id, 'sell', :quantity, :price_per_unit, :total_amount)
+            ");
+            $registrarTransaccion->execute([
+                ':user_id'        => $usuarioId,
+                ':asset_id'       => $asset_id,
+                ':quantity'       => $quantity,
+                ':price_per_unit' => $current_price,
+                ':total_amount'   => $gananciaTotal
+            ]);
+
+            $conexion->commit();
+
+            return [
+                "status" => "success",
+                "ganancia_total" => $gananciaTotal,
                 "precio_ejecutado" => $current_price
             ];
         } catch (Exception $excepcion) {

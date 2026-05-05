@@ -105,6 +105,7 @@ $app->post('/trade/buy', [TradeController::class, 'buy'])->add(new AuthMiddlewar
 $app->GET('/portfolio', [PortfolioController::class, 'obtenerPortafolio'])->add(new AuthMiddleware());
 $app->GET('/transactions', [TransactionController::class, 'obtenerTransacciones'])->add(new AuthMiddleware());
 $app->DELETE('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio'])->add(new AuthMiddleware());
+$app->post('/trade/sell', [TradeController::class, 'vender'])->add(new AuthMiddleware());
 
 // Manejador para rutas no encontradas
 $errorMiddleware->setErrorHandler(
@@ -136,6 +137,8 @@ $app->group('/api', function ($group) {
     $group->get('/portfolio', [PortfolioController::class, 'obtenerPortafolio']);
     $group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
     $group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
+    $group->post('/trade/sell', [TradeController::class, 'vender']);
+
     // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);
     // Endpoint para la compra de activos
