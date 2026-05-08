@@ -34,7 +34,6 @@ $errorMiddleware->setDefaultErrorHandler(function ($request, $exception, $displa
         'message' => $exception->getMessage(),
     ];
 
-    // Si estamos en modo debug, agregamos más info
     if ($displayErrorDetails) {
         $payload['trace'] = $exception->getTrace();
     }
@@ -58,6 +57,7 @@ $app->add(function ($request, $handler) {
 });
 
 // ACÁ VAN LOS ENDPOINTS
+
 // Endpoint de prueba para verificar que el entorno se carga correctamente
 $app->get('/test-env', function (Request $request, Response $response) {
     $data = [
@@ -69,14 +69,12 @@ $app->get('/test-env', function (Request $request, Response $response) {
     return $response;
 });
 
-//Fabri
 $app->get('/assets', [AssetController::class, 'listar']);
 $app->put('/assets', [AssetController::class, 'actualizarPrecio'])->add(new AuthMiddleware());
 $app->get('/assets/{asset_id}/history/{quantity}', [AssetController::class, 'consultarHistorial']);
 
 $app->get('/test-db-connection', function (Request $request, Response $response) {
     try {
-        // Intentamos conectar usando las variables que ya sabemos que existen
         $conn = new mysqli($_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME']);
 
         if ($conn->connect_error) {
@@ -97,7 +95,7 @@ $app->get('/test-db-connection', function (Request $request, Response $response)
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// Rutas de autenticación
+// Rutas de usuario y autenticación
 $app->post('/users', [UserController::class, 'registrar']);
 $app->post('/login', [UserController::class, 'login']);
 $app->post('/logout', [UserController::class, 'logout']);
@@ -138,6 +136,9 @@ $app->group('/api', function ($group) {
     $group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
     $group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
     $group->post('/trade/sell', [TradeController::class, 'vender']);
+    $group->get('/users/{user_id}', [UserController::class, 'verPerfil']);
+    $group->put('/users/{user_id}', [UserController::class, 'editarPerfil']);
+    $group->get('/users', [UserController::class, 'listarUsuarios']);
 
     // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);

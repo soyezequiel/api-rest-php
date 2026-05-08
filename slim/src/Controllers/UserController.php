@@ -109,4 +109,81 @@ class UserController
         ]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
+
+    public function verPerfil(Request $request, Response $response, array $args)
+    {
+        $targetUserId = (int)$args['user_id'];
+        $requesterId = (int)$request->getAttribute('user_id');
+
+        $requester = User::getById($requesterId);
+
+        if ($requesterId !== $targetUserId && !($requester['is_admin'] ?? false)) {
+            return $this->errorResponse($response, 'No tiene permisos para ver este perfil', 401);
+        }
+
+        $userData = User::getProfileWithTotal($targetUserId);
+
+        if (!$userData) {
+            return $this->errorResponse($response, 'Usuario no encontrado', 404);
+        }
+
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'data' => $userData
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function editarPerfil(Request $request, Response $response, array $args)
+    {
+        $targetUserId = (int)$args['user_id'];
+        $requesterId = (int)$request->getAttribute('user_id');
+        $data = $request->getParsedBody();
+
+        $requester = User::getById($requesterId);
+        if ($requesterId !== $targetUserId && !($requester['is_admin'] ?? false)) {
+            return $this->errorResponse($response, 'No tiene permisos para editar este perfil', 401);
+        }
+
+        if (!User::getById($targetUserId)) {
+            return $this->errorResponse($response, 'Usuario no encontrado', 404);
+        }
+
+        if (isset($data['name']) && !preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/", $data['name'])) {
+            return $this->errorResponse($response, 'El nombre solo debe contener letras', 400);
+        }
+
+        if (isset($data['password'])) {
+            $regexPass = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&+])[A-Za-z\d@$!%*?&]{8,}$/";
+            if (!preg_match($regexPass, $data['password'])) {
+                return $this->errorResponse($response, 'La nueva contraseña no cumple los requisitos', 400);
+            }
+        }
+
+        User::update($targetUserId, $data);
+
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'message' => 'Perfil actualizado correctamente'
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function listarUsuarios(Request $request, Response $response)
+    {
+        $requesterId = (int)$request->getAttribute('user_id');
+        $requester = User::getById($requesterId);
+
+        if (!($requester['is_admin'] ?? false)) {
+            return $this->errorResponse($response, 'Acceso denegado: se requieren permisos de administrador', 401);
+        }
+
+        $lista = User::getAllWithTotal();
+
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'data' => $lista
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\DB; // Tu conexión a base de datos
+use App\Models\DB;
 use PDO;
 
 class Portfolio
@@ -25,13 +25,11 @@ class Portfolio
         $sentencia = $db->prepare($sql);
         $sentencia->bindValue(":user_id", $userId, PDO::PARAM_INT);
         $sentencia->execute();
-        // 4. Retornas el arreglo armado
         return $sentencia->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public static function borrarActivoEnCero($userId, $assetId)
     {
-        // 1. Buscas la cantidad que tiene el usuario de ese activo
         $db = DB::getConnection();
         $sql = "
             SELECT
@@ -46,15 +44,12 @@ class Portfolio
         $sentencia->bindValue(":asset_id", $assetId, PDO::PARAM_INT);
         $sentencia->execute();
         $resultado = $sentencia->fetch(PDO::FETCH_ASSOC);
-        // 2. Si no existe, puedes devolver algo para disparar el 404
         if (!$resultado) {
             return 'no existe';
         }
-        // 3. Si cantidad > 0, devuelves algo para disparar el 409
         if ($resultado['quantity'] > 0) {
             return 'tiene cantidad';
         }
-        // 4. Si cantidad es exactamente 0 (o 0.00), haces el DELETE en la DB.
         $sql = "
             DELETE
             FROM portfolio
