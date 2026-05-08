@@ -33,11 +33,10 @@ class Asset
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public static function actualizarPrecio(array $data = [])
+    public static function actualizarPrecio()
     {
 
         $db = DB::getConnection();
-        $adminId = $data['is_admin'] ?? null;
 
         // Obtener todos los assets
         $stmt = $db->prepare("SELECT id, current_price, last_update FROM assets");
@@ -57,7 +56,7 @@ class Asset
             $updateStmt->execute([$nuevoPrecio, $asset['id']]);
         }
 
-        return true; // O algún indicador de éxito
+        return true;
     }
 
     public static function getHistorial($asset_id, $quantity)
@@ -71,7 +70,7 @@ class Asset
         }
 
         $stmt = $db->prepare("
-            SELECT price_per_unit, transaction_date FROM transactions
+            SELECT transaction_type, price_per_unit, total_amount, transaction_date FROM transactions
             WHERE asset_id = ?
             ORDER BY transaction_date DESC
             LIMIT $quantity
