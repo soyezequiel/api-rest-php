@@ -42,7 +42,7 @@ $errorMiddleware->setDefaultErrorHandler(function ($request, $exception, $displa
 
     return $response
         ->withHeader('Content-Type', 'application/json')
-        ->withStatus(500); // O el código que corresponda
+        ->withStatus(500);
 });
 
 $app->add(function ($request, $handler) {
@@ -54,19 +54,6 @@ $app->add(function ($request, $handler) {
         ->withHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE')
         ->withHeader('Content-Type', 'application/json')
     ;
-});
-
-// ACÁ VAN LOS ENDPOINTS
-
-// Endpoint de prueba para verificar que el entorno se carga correctamente
-$app->get('/test-env', function (Request $request, Response $response) {
-    $data = [
-        'status' => 'success',
-        'message' => 'Entorno configurado correctamente',
-        'db_host_variable' => $_ENV['DB_HOST']
-    ];
-    $response->getBody()->write(json_encode($data));
-    return $response;
 });
 
 $app->get('/assets', [AssetController::class, 'listar']);
@@ -118,7 +105,7 @@ $errorMiddleware->setErrorHandler(
     }
 );
 
-// Grupo de rutas protegidas (aquí irán el portfolio, compra/venta, etc.)
+// Grupo de rutas protegidas
 $app->group('/api', function ($group) {
     // Ruta de prueba para verificar el Middleware
     $group->get('/test-auth', function ($request, $response) {
@@ -130,8 +117,6 @@ $app->group('/api', function ($group) {
         return $response->withHeader('Content-Type', 'application/json');
     });
 
-    //Acá agregamos rutas protegidas, por ejemplo:
-    // $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
     $group->get('/portfolio', [PortfolioController::class, 'obtenerPortafolio']);
     $group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
     $group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
@@ -139,10 +124,7 @@ $app->group('/api', function ($group) {
     $group->get('/users/{user_id}', [UserController::class, 'verPerfil']);
     $group->put('/users/{user_id}', [UserController::class, 'editarPerfil']);
     $group->get('/users', [UserController::class, 'listarUsuarios']);
-
-    // Rutas de usuario
     $group->post('/logout', [UserController::class, 'logout']);
-    // Endpoint para la compra de activos
     $group->post('/trade/buy', [TradeController::class, 'buy']);
 
 })->add(new AuthMiddleware());
