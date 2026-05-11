@@ -1,5 +1,2 @@
 *
 !.gitignore
-
-# Permitir todos los .sql en esta carpeta
-!*.sql
