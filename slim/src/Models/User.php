@@ -28,7 +28,7 @@ class User
         $db = DB::getConnection();
         $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
-        return $stmt->fetch(\PDO::FETCH_ASSOC); // Retorna un array con los datos o false
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
     public static function updateToken($userId, $token, $expiration, $creation)
@@ -67,7 +67,6 @@ class User
 
         $tenencias = \App\Models\Portfolio::obtenerPorUsuario($userId);
 
-        // Sumamos el valor de todos los activos en el portfolio
         $totalPortfolio = array_reduce($tenencias, function ($sum, $item) {
             return $sum + $item['total_value'];
         }, 0);

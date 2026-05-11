@@ -113,7 +113,6 @@ class Trade
             $current_price = (float) $activo['current_price'];
             $gananciaTotal = $current_price * $quantity;
 
-            // Primero descontar del portafolio asegurando que tenga suficientes activos
             $actualizarPortfolio = $conexion->prepare("
                 UPDATE portfolio
                 SET quantity = quantity - :cantidad
@@ -137,7 +136,6 @@ class Trade
                 ];
             }
 
-            // Sumar el saldo obtenido al usuario
             $actualizarBalance = $conexion->prepare("
                 UPDATE users
                 SET balance = balance + :ganancia

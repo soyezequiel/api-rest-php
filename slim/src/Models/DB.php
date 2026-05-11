@@ -10,7 +10,6 @@ class DB
     {
         if (!self::$connection) {
 
-            // Variables de configuración
             $host   = $_ENV['DB_HOST'] ?? 'db';
             $dbname = $_ENV['DB_NAME'] ?? '';
             $user   = $_ENV['DB_USER'] ?? '';

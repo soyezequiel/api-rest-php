@@ -10,6 +10,7 @@ use App\Models\User;
 
 class AssetController
 {
+   
     public function listar(Request $request, Response $response)
     {
         $queryParams = $request->getQueryParams();
@@ -65,19 +66,16 @@ class AssetController
     {
         $asset_id = (int)$args['asset_id'];   
         $quantity = (int)$args['quantity'];
-        // Validar que quantity esté entre 1 y 5
         if ($quantity < 1 || $quantity > 5) {
             return $this->errorResponse($response, 'Quantity no esta entre 1 y 5', 400);
         }
         
         try {
             $historial = Asset::getHistorial($asset_id, $quantity); 
-            // Si el historial es null, significa que no se encontró el asset
             if($historial === null) {
                 return $this->errorResponse($response, 'No existe ese activo', 404);
             }
 
-            // Si el historial es un array vacío, significa que no hay registros para ese asset
             $response->getBody()->write(json_encode([
                 "status" => "success",
                 "data" => $historial

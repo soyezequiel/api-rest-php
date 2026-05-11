@@ -16,7 +16,6 @@ class UserController
         $email = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
 
-        // 1. Validaciones de formato (incluyen el chequeo de empty)
         if (empty($name) || !preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/", $name)) {
             return $this->errorResponse($response, 'El nombre es obligatorio y solo debe contener letras', 400);
         }

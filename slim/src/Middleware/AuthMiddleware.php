@@ -33,9 +33,7 @@ class AuthMiddleware
         $currentDate = $now->format('Y-m-d H:i:s');
         $newExpiry = $now->modify('+5 minutes')->format('Y-m-d H:i:s');
 
-        // Extensión de la sesión por 5 minutos adicionales
         User::updateToken($user['id'], $token, $newExpiry, $currentDate);
-        // -------------------------------------------------------
 
         $request = $request->withAttribute('user_id', $user['id']);
         return $handler->handle($request);

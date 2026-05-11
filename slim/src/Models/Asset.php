@@ -38,12 +38,10 @@ class Asset
 
         $db = DB::getConnection();
 
-        // Obtener todos los assets
         $stmt = $db->prepare("SELECT id, current_price, last_update FROM assets");
         $stmt->execute();
         $assets = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Instancia de la clase para variar precios
         $variador = new \App\Controllers\variarPrecioPorTiempo();
 
         foreach ($assets as $asset) {
@@ -51,7 +49,6 @@ class Asset
             $precioActual = (float) $asset['current_price'];
             $nuevoPrecio = $variador->main($precioActual, $timestampUltimaVez);
 
-            // Actualizar el precio y last_update
             $updateStmt = $db->prepare("UPDATE assets SET current_price = ?, last_update = NOW() WHERE id = ?");
             $updateStmt->execute([$nuevoPrecio, $asset['id']]);
         }
@@ -66,7 +63,7 @@ class Asset
         $check->execute([$asset_id]);
 
         if (!$check->fetch()) {
-            return null; // Asset no encontrado
+            return null; 
         }
 
         $stmt = $db->prepare("

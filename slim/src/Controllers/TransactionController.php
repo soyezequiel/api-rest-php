@@ -15,13 +15,11 @@ class TransactionController
         $asset_id = $filtros['asset_id'] ?? null;
         if ($tipo !== null && $tipo !== 'buy' && $tipo !== 'sell') {
 
-            // Escribimos el mensaje de error
             $response->getBody()->write(json_encode([
                 'status' => 'error',
                 'message' => 'Filtros inválidos en historial. El type debe ser buy o sell.'
             ]));
 
-            // Devolvemos la respuesta con el Header de JSON y el código de estado HTTP 400 (Bad Request)
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
