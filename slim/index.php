@@ -55,27 +55,6 @@ $app->add(function ($request, $handler) {
         ->withHeader('Content-Type', 'application/json');
 });
 
-$app->get('/test-db-connection', function (Request $request, Response $response) {
-    try {
-        $conn = new mysqli($_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME']);
-
-        if ($conn->connect_error) {
-            throw new Exception("Fallo de conexión: " . $conn->connect_error);
-        }
-
-        $data = ['status' => 'success', 'message' => 'Conectado a MySQL con exito'];
-        $conn->close();
-    } catch (Exception $e) {
-        $data = [
-            'status' => 'error',
-            'message' => $e->getMessage(),
-            'host_intentado' => $_ENV['DB_HOST']
-        ];
-    }
-
-    $response->getBody()->write(json_encode($data));
-    return $response->withHeader('Content-Type', 'application/json');
-});
 
 // Rutas de usuario y autenticación
 $app->post('/users', [UserController::class, 'registrar']);
@@ -108,28 +87,28 @@ $errorMiddleware->setErrorHandler(
 );
 
 // Grupo de rutas protegidas
-$app->group('/api', function ($group) {
-    $group->get('/test-auth', function ($request, $response) {
-        $userId = $request->getAttribute('user_id');
-        $response->getBody()->write(json_encode([
-            "status" => "success",
-            "message" => "Acceso concedido para el usuario ID: " . $userId
-        ]));
-        return $response->withHeader('Content-Type', 'application/json');
-    });
+// $app->group('/api', function ($group) {
+//     $group->get('/test-auth', function ($request, $response) {
+//         $userId = $request->getAttribute('user_id');
+//         $response->getBody()->write(json_encode([
+//             "status" => "success",
+//             "message" => "Acceso concedido para el usuario ID: " . $userId
+//         ]));
+//         return $response->withHeader('Content-Type', 'application/json');
+//     });
 
-    $group->get('/users/{user_id}', [UserController::class, 'verPerfil']);
-    $group->put('/users/{user_id}', [UserController::class, 'editarPerfil']);
-    $group->get('/users', [UserController::class, 'listarUsuarios']);
-    $group->post('/logout', [UserController::class, 'logout']);
+//     $group->get('/users/{user_id}', [UserController::class, 'verPerfil']);
+//     $group->put('/users/{user_id}', [UserController::class, 'editarPerfil']);
+//     $group->get('/users', [UserController::class, 'listarUsuarios']);
+//     $group->post('/logout', [UserController::class, 'logout']);
 
-    $group->get('/portfolio', [PortfolioController::class, 'obtenerPortafolio']);
-    $group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
+//     $group->get('/portfolio', [PortfolioController::class, 'obtenerPortafolio']);
+//     $group->delete('/portfolio/{asset_id}', [PortfolioController::class, 'borrarPortafolio']);
 
-    $group->post('/trade/buy', [TradeController::class, 'buy']);
-    $group->post('/trade/sell', [TradeController::class, 'vender']);
+//     $group->post('/trade/buy', [TradeController::class, 'buy']);
+//     $group->post('/trade/sell', [TradeController::class, 'vender']);
 
-    $group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
-})->add(new AuthMiddleware());
+//     $group->get('/transactions', [TransactionController::class, 'obtenerTransacciones']);
+// })->add(new AuthMiddleware());
 
 $app->run();
