@@ -9,7 +9,7 @@ class TransactionController
 {
     public function obtenerTransacciones(Request $request, Response $response, array $args = [])
     {
-        $userId = $request->getAttribute('user_id');
+        $userId = $request->getAttribute('auth_user_id');
         $filtros = $request->getQueryParams();
         $tipo = $filtros['type'] ?? null;
         $asset_id = $filtros['asset_id'] ?? null;

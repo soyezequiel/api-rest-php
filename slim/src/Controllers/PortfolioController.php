@@ -10,7 +10,7 @@ class PortfolioController
     public function obtenerPortafolio(Request $request, Response $response, array $args = [])
     {
 
-        $userId = $request->getAttribute('user_id');
+        $userId = $request->getAttribute('auth_user_id');
         $tenencias = \App\Models\Portfolio::obtenerPorUsuario($userId);
 
         $response->getBody()->write(json_encode([
@@ -21,7 +21,7 @@ class PortfolioController
     }
     public function borrarPortafolio(Request $request, Response $response, array $args = [])
     {
-        $userId = $request->getAttribute('user_id');
+        $userId = $request->getAttribute('auth_user_id');
         $assetId = $args['asset_id'];
         $respuesta = \App\Models\Portfolio::borrarActivoEnCero($userId, $assetId);
 

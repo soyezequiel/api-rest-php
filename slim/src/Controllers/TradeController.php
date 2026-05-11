@@ -11,7 +11,7 @@ class TradeController
 {
     public function buy(Request $request, Response $response)
     {
-        $usuarioId = $request->getAttribute('user_id');
+        $usuarioId = $request->getAttribute('auth_user_id');
         $cuerpoPeticion = json_decode($request->getBody()->getContents(), true);
         if (!is_array($cuerpoPeticion)) {
             $cuerpoPeticion = [];
@@ -63,7 +63,7 @@ class TradeController
     }
     public function vender(Request $request, Response $response)
     {
-        $usuarioId = $request->getAttribute('user_id');
+        $usuarioId = $request->getAttribute('auth_user_id');
         $cuerpoPeticion = json_decode($request->getBody()->getContents(), true);
         if (!is_array($cuerpoPeticion)) {
             $cuerpoPeticion = [];

@@ -90,7 +90,7 @@ class UserController
 
     public function logout(Request $request, Response $response)
     {
-        $userId = $request->getAttribute('user_id');
+        $userId = $request->getAttribute('auth_user_id');
         User::logout($userId);
 
         $response->getBody()->write(json_encode([
@@ -111,12 +111,13 @@ class UserController
 
     public function verPerfil(Request $request, Response $response, array $args)
     {
-        $targetUserId = (int)$args['user_id'];
-        $requesterId = (int)$request->getAttribute('user_id');
+        $targetUserId = (int) $args['user_id'];
+        $requesterId = (int) $request->getAttribute('auth_user_id');
 
         $requester = User::getById($requesterId);
+        $isSelf = $requesterId === $targetUserId;
 
-        if ($requesterId !== $targetUserId && !($requester['is_admin'] ?? false)) {
+        if (!$isSelf && !($requester['is_admin'] ?? false)) {
             return $this->errorResponse($response, 'No tiene permisos para ver este perfil', 401);
         }
 
@@ -135,8 +136,8 @@ class UserController
 
     public function editarPerfil(Request $request, Response $response, array $args)
     {
-        $targetUserId = (int)$args['user_id'];
-        $requesterId = (int)$request->getAttribute('user_id');
+        $targetUserId = (int) $args['user_id'];
+        $requesterId = (int) $request->getAttribute('auth_user_id');
         $data = $request->getParsedBody();
 
         $requester = User::getById($requesterId);
@@ -170,7 +171,7 @@ class UserController
 
     public function listarUsuarios(Request $request, Response $response)
     {
-        $requesterId = (int)$request->getAttribute('user_id');
+        $requesterId = (int) $request->getAttribute('auth_user_id');
         $requester = User::getById($requesterId);
 
         if (!($requester['is_admin'] ?? false)) {

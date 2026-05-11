@@ -38,7 +38,7 @@ class AssetController
 
     public function actualizarPrecio(Request $request, Response $response)
     {
-        $userId = $request->getAttribute('user_id');
+        $userId = $request->getAttribute('auth_user_id');
         $user = User::getById($userId);
 
         if (!$user) {

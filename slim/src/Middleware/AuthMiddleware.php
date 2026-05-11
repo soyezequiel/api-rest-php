@@ -36,7 +36,7 @@ class AuthMiddleware
 
         User::updateToken($user['id'], $token, $newExpiry, $currentDate);
 
-        $request = $request->withAttribute('user_id', $user['id']);
+        $request = $request->withAttribute('auth_user_id', $user['id']);
         return $handler->handle($request);
     }
 
