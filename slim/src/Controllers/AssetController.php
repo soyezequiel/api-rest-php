@@ -10,7 +10,7 @@ use App\Models\User;
 
 class AssetController
 {
-   
+    
     public function listar(Request $request, Response $response)
     {
         $queryParams = $request->getQueryParams();

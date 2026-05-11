@@ -33,6 +33,7 @@ class Asset
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    // Actualiza el precio de todos los activos utilizando la lógica de variación por tiempo
     public static function actualizarPrecio()
     {
 

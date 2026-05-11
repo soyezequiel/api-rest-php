@@ -6,6 +6,7 @@ use Exception;
 
 class Trade
 {
+    // Procesa la compra de un activo por parte de un usuario de forma atomica y segura
     public static function procesarCompra($usuarioId, $asset_id, $quantity)
     {
         $conexion = DB::getConnection();
@@ -89,6 +90,7 @@ class Trade
             throw $excepcion;
         }
     }
+    // Procesa la venta de un activo por parte de un usuario de forma atomica y segura
     public static function procesarVenta($usuarioId, $asset_id, $quantity)
     {
         $conexion = DB::getConnection();

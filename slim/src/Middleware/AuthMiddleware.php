@@ -10,6 +10,7 @@ use App\Models\User;
 
 class AuthMiddleware
 {
+    // Middleware para validar el token de autenticación en cada solicitud renovando su expiración
     public function __invoke(Request $request, Handler $handler): Response
     {
         $authHeader = $request->getHeaderLine('Authorization');

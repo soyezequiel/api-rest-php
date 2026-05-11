@@ -28,6 +28,7 @@ class Portfolio
         return $sentencia->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Elimina la entrada del portafolio para un activo específico si la cantidad es cero
     public static function borrarActivoEnCero($userId, $assetId)
     {
         $db = DB::getConnection();
