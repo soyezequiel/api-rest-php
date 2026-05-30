@@ -16,7 +16,12 @@ class DB
             $pass   = getenv('DB_PASS') ?: '';
 
             try {
-                self::$connection = new \PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
+                self::$connection = new \PDO(
+                    "mysql:host=$host;dbname=$dbname;charset=utf8",
+                    $user,
+                    $pass,
+                    [\Pdo\Mysql::ATTR_FOUND_ROWS => true]
+                );
                 self::$connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
                 self::$connection->exec("SET time_zone = '-03:00';");
