@@ -72,7 +72,6 @@ class User
         }, 0);
 
         $user['portfolio_value'] = $totalPortfolio;
-        $user['total_wealth'] = $user['balance'] + $totalPortfolio;
 
         return $user;
     }
