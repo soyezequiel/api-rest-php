@@ -29,7 +29,7 @@ class Trade
             }
 
             $current_price = (float) $activo['current_price'];
-            $costoTotal = $current_price * $quantity;
+            $costoTotal = round($current_price * $quantity, 2);
 
             $actualizarBalance = $conexion->prepare("
                 UPDATE users

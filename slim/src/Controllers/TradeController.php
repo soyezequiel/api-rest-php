@@ -20,11 +20,13 @@ class TradeController
         $asset_id = $cuerpoPeticion['asset_id'] ?? null;
         $quantity = $cuerpoPeticion['quantity'] ?? null;
 
-        if (
-            !is_numeric($asset_id) || $asset_id <= 0 || floor($asset_id) != $asset_id ||
-            !is_numeric($quantity) || $quantity <= 0 || floor($quantity) != $quantity
-        ) {
-            $respuestaError = ["status" => "error", "message" => "Cantidad invalida o datos faltantes"];
+        if (!is_numeric($asset_id) || $asset_id <= 0 || floor($asset_id) != $asset_id) {
+            $respuestaError = ["status" => "error", "message" => "Falta asset id o es invalido"];
+            $response->getBody()->write(json_encode($respuestaError));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+        if (!is_numeric($quantity) || $quantity <= 0 || floor($quantity) != $quantity){
+            $respuestaError = ["status" => "error", "message" => "Falta cantidad o es invalida"];
             $response->getBody()->write(json_encode($respuestaError));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
