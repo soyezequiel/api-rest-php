@@ -52,6 +52,7 @@ $app->add(function ($request, $handler) {
         ->withHeader('Access-Control-Allow-Origin', '*')
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
         ->withHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE')
+        ->withHeader('Access-Control-Expose-Headers', 'Authorization')
         ->withHeader('Content-Type', 'application/json');
 });
 

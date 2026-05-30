@@ -16,17 +16,29 @@ class UserController
         $email = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
 
-        if (empty($name) || !preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/", $name)) {
-            return $this->errorResponse($response, 'El nombre es obligatorio y solo debe contener letras', 400);
+        if (empty($name)) {
+            return $this->errorResponse($response, "'name' es requerido", 400);
+        }
+
+        if (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/", $name)) {
+            return $this->errorResponse($response, "'name' solo debe contener letras", 400);
+        }
+
+        if (empty($email)) {
+            return $this->errorResponse($response, "'email' es requerido", 400);
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->errorResponse($response, 'El formato de email no es válido', 400);
+            return $this->errorResponse($response, "'email' no tiene un formato válido", 400);
         }
 
-        $regexPass = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&+])[A-Za-z\d@$!%*?&]{8,}$/";
+        if (empty($password)) {
+            return $this->errorResponse($response, "'password' es requerido", 400);
+        }
+
+        $regexPass = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&+])[A-Za-z\d@$!%*?&+]{8,}$/";
         if (!preg_match($regexPass, $password)) {
-            return $this->errorResponse($response, 'La contraseña no cumple los requisitos de seguridad', 400);
+            return $this->errorResponse($response, "'password' debe tener mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un caracter especial (@ $ ! % * ? & +)", 400);
         }
 
         try {
@@ -56,7 +68,7 @@ class UserController
         $user = User::getByEmail($email);
 
         if ($user && password_verify($password, $user['password'])) {
-            $secretKey = $_ENV['JWT_SECRET'] ?? 'esta_es_una_clave_secreta_muy_larga_y_segura_unlp_2026_abc123';
+            $secretKey = getenv('JWT_SECRET') ?: 'esta_es_una_clave_secreta_muy_larga_y_segura_unlp_2026_abc123';
 
             $duration = 300;
             $expirationTime = time() + $duration;
@@ -76,12 +88,14 @@ class UserController
 
             $response->getBody()->write(json_encode([
                 'status' => 'success',
-                'token' => $token,
                 'message' => 'Login exitoso'
             ]));
 
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withHeader('Authorization', 'Bearer ' . $token)
+                ->withStatus(200);
         }
 
         $response->getBody()->write(json_encode(['status' => 'error', 'message' => 'Credenciales inválidas']));
@@ -150,13 +164,13 @@ class UserController
         }
 
         if (isset($data['name']) && !preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/", $data['name'])) {
-            return $this->errorResponse($response, 'El nombre solo debe contener letras', 400);
+            return $this->errorResponse($response, "'name' solo debe contener letras", 400);
         }
 
         if (isset($data['password'])) {
-            $regexPass = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&+])[A-Za-z\d@$!%*?&]{8,}$/";
+            $regexPass = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&+])[A-Za-z\d@$!%*?&+]{8,}$/";
             if (!preg_match($regexPass, $data['password'])) {
-                return $this->errorResponse($response, 'La nueva contraseña no cumple los requisitos', 400);
+                return $this->errorResponse($response, "'password' debe tener mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un caracter especial (@ $ ! % * ? & +)", 400);
             }
         }
 
