@@ -68,7 +68,7 @@ class Asset
         }
 
         $stmt = $db->prepare("
-            SELECT transaction_type, price_per_unit, total_amount, transaction_date FROM transactions
+            SELECT transaction_type, price_per_unit, transaction_date FROM transactions
             WHERE asset_id = ?
             ORDER BY transaction_date DESC
             LIMIT $quantity
