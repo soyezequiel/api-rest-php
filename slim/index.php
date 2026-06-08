@@ -96,4 +96,8 @@ $app->group('', function ($group) {
     $group->put('/assets', [AssetController::class, 'actualizarPrecio']);
 })->add(new AuthMiddleware());
 
+$app->options('/{routes:.+}', function ($request, $response, $args) {
+    return $response;
+});
+
 $app->run();

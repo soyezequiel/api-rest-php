@@ -88,7 +88,10 @@ class UserController
 
             $response->getBody()->write(json_encode([
                 'status' => 'success',
-                'message' => 'Login exitoso'
+                'message' => 'Login exitoso',
+                'name' => $user['name'], 
+                'isAdmin' => (bool)$user['is_admin'],
+                'userId' => $user['id'],
             ]));
 
 
