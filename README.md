@@ -80,3 +80,8 @@ graph TD
 ## Problemas comunes y soluciones
 
 Si encuentras algún error al iniciar o detener los servicios (especialmente errores de red de Docker o puertos en uso), consulta la guía de [Solución de Problemas (TROUBLESHOOTING.md)](./TROUBLESHOOTING.md) para encontrar los pasos detallados para resolverlos.
+
+
+
+
+Se agrega por conveniencia que el endpoint /users en el response del mismo aparezca informacion de "is_admin"

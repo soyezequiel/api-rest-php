@@ -104,7 +104,7 @@ class User
     public static function getAllWithTotal()
     {
         $db = DB::getConnection();
-        $stmt = $db->query("SELECT id, name, balance FROM users");
+        $stmt = $db->query("SELECT id, name, balance, is_admin FROM users");
         $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($users as &$user) {
