@@ -3,6 +3,26 @@
 ## Requisitos
 * Docker Desktop
 
+## Lanzador en Windows
+
+Para abrir y cerrar el proyecto sin recordar comandos, ejecuta `lanzador.bat` con doble clic desde la raiz del proyecto.
+
+El menu permite:
+* **Abrir proyecto:** crea `.env` si falta, crea el volumen de base de datos si no existe, ejecuta `docker compose up -d` y abre la API y phpMyAdmin en el navegador.
+* **Cerrar proyecto:** ejecuta `docker compose down` y conserva los datos del volumen.
+* **Ver estado y logs:** muestra contenedores o logs de Docker Compose.
+* **Limpiar base de datos:** detiene los servicios y elimina el volumen despues de pedir confirmacion.
+
+Tambien se puede usar desde terminal:
+```bat
+lanzador.bat abrir
+lanzador.bat cerrar
+lanzador.bat estado
+lanzador.bat logs
+lanzador.bat reiniciar
+lanzador.bat limpiar-db
+```
+
 ## Tecnologías y Librerías utilizadas
 * **Slim 4**: Framework base.
 * **Firebase PHP-JWT**: Autenticación con tokens.
