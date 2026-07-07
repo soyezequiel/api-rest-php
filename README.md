@@ -101,7 +101,30 @@ graph TD
 
 Si encuentras algún error al iniciar o detener los servicios (especialmente errores de red de Docker o puertos en uso), consulta la guía de [Solución de Problemas (TROUBLESHOOTING.md)](./TROUBLESHOOTING.md) para encontrar los pasos detallados para resolverlos.
 
+# Correcciones
 
+1. Se modificó el login para devolver el JWT en el header `Authorization`, en lugar del cuerpo de la respuesta.
 
+2. Se mejoraron las validaciones del alta y modificación de usuarios indicando el nombre exacto del campo requerido (`name`, `email`, `password`).
 
-Se agrega por conveniencia que el endpoint /users en el response del mismo aparezca informacion de "is_admin"
+3. Se mejoraron los mensajes de validación de contraseñas indicando los requisitos de seguridad esperados.
+
+4. Se corrigió el endpoint `GET /users` para calcular únicamente el valor del portfolio, según lo solicitado por la consigna.
+
+5. Se eliminó el campo `total_amount` de la respuesta del historial de precios de los activos, devolviendo únicamente la información requerida.
+
+6. Se mejoraron las validaciones de compra de activos indicando los campos obligatorios cuando faltan datos.
+
+7. Se ajustaron los cálculos monetarios para evitar valores con exceso de decimales utilizando redondeo.
+
+# Mejoras adicionales realizadas
+
+1. Se agregó el campo `is_admin` en la respuesta del endpoint `GET /users`.
+
+2. Se agregó el identificador (`userId`) del usuario autenticado en la respuesta del login.
+
+3. Se agregó el nombre (`name`) del usuario autenticado en la respuesta del login.
+
+4. Se configuró la conexión PDO utilizando `ATTR_FOUND_ROWS` para mejorar el comportamiento de las operaciones de actualización.
+
+5. Se incorporó un lanzador (`lanzador.bat`) junto con su documentación para simplificar la puesta en marcha, detención y administración del entorno Docker del proyecto.
